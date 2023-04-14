@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-work-config-map
+  labels:
+    app: home-work-config-map
+  namespace: dev
+data:
+  APP_PORT: "8000"
+  DB_URL: jdbc:postgresql://postgresql:5432/postgres

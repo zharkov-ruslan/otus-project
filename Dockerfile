@@ -1,5 +1,5 @@
 FROM bellsoft/liberica-openjdk-debian:latest
-#EXPOSE 8080
-ARG JAR_FILE=target/docker-demo-0.0.1.jar
+#EXPOSE 8000
+ARG JAR_FILE=target/home-work-0.4.0.jar
 COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]

@@ -1,0 +1,10 @@
+apiVersion: v2
+name: home-work
+type: application
+version: 0.1.0
+appVersion: "0.4.0"
+
+dependencies:
+  - name: postgresql
+    version: 12.2.8
+    repository: https://charts.bitnami.com/bitnami

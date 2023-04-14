@@ -1,0 +1,138 @@
+{
+	"info": {
+		"_postman_id": "476b1a75-5e86-443c-bbd4-f1f6ff68d597",
+		"name": "otus project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20948816"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://arch.homework/api/v1/user/:userId",
+							"protocol": "http",
+							"host": [
+								"arch",
+								"homework"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "802a49d7-960b-40be-b7c5-73a26ba505ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userName\": \"User1\",\r\n  \"lastName\": \"Петров\",\r\n  \"firstName\": \"Иван\",\r\n  \"email\": \"petro@mail.ru\",\r\n  \"phone\": \"+79097778899\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://arch.homework/api/v1/user",
+							"protocol": "http",
+							"host": [
+								"arch",
+								"homework"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userName\": \"User2\",\r\n  \"email\": \"petro2@mail.ru\",\r\n  \"phone\": \"+79097778800\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://arch.homework/api/v1/user/:userId",
+							"protocol": "http",
+							"host": [
+								"arch",
+								"homework"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "802a49d7-960b-40be-b7c5-73a26ba505ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://arch.homework/api/v1/user/:userId",
+							"protocol": "http",
+							"host": [
+								"arch",
+								"homework"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "802a49d7-960b-40be-b7c5-73a26ba505ab"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
