@@ -11,6 +11,7 @@ import static lombok.AccessLevel.PRIVATE;
  */
 @NoArgsConstructor(access = PRIVATE)
 public class MessageTemplate {
+    public static final String GET_USERS_REQUEST_MESSAGE = "Получен запрос на выборку всех пользоватей";
     public static final String GET_USER_REQUEST_MESSAGE = "Получен запрос данных пользователя: id={}";
     public static final String CREATE_USER_REQUEST_MESSAGE = "Получен запрос на создание пользователя: {}";
     public static final String UPDATE_USER_REQUEST_MESSAGE = "Получен запрос на обновление данных пользователя: id={}, userData={}";

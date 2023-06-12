@@ -1,5 +1,0 @@
-test:
-  postgres:
-    docker:
-      image:
-        url: postgres:14-alpine

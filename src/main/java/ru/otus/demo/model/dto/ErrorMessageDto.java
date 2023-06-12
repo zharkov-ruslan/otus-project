@@ -1,13 +1,11 @@
 package ru.otus.demo.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 

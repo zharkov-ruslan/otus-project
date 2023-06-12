@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.applicationName }}-deployment
+  labels:
+    app: {{ .Values.applicationName }}-deployment
+  namespace: {{ .Values.ns }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.applicationName }}-app
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.applicationName }}-app"
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.pod.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.pod.containerPort }}
+            initialDelaySeconds: {{ .Values.pod.initialDelaySeconds }}
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.pod.containerPort }}
+            initialDelaySeconds: {{ .Values.pod.initialDelaySeconds }}
+            periodSeconds: 5
+          env:
+            - name: REALM_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak-realm
+                  key: realm.name
+            - name: ADMIN_CLI_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: admin-cli-secret
+                  optional: false
+            - name: OTUS_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: otus-app-secret
+                  optional: false
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.applicationName }}-config-map

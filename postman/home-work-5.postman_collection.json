@@ -1,0 +1,796 @@
+{
+	"info": {
+		"_postman_id": "5dd2ef62-b931-446c-a1cc-2e246ac30460",
+		"name": "home-work-5",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20948816"
+	},
+	"item": [
+		{
+			"name": "registration user1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"name-user1\", pm.variables.replaceIn('{{$randomUserName}}'));\r",
+							"pm.collectionVariables.set(\"lastName-user1\", pm.variables.replaceIn('{{$randomLastName}}'));\r",
+							"pm.collectionVariables.set(\"firstName-user1\", pm.variables.replaceIn('{{$randomFirstName}}'));\r",
+							"pm.collectionVariables.set(\"email-user1\", pm.variables.replaceIn('{{$randomEmail}}'));\r",
+							"pm.collectionVariables.set(\"phone-user1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'));\r",
+							"pm.collectionVariables.set(\"password-user1\", pm.variables.replaceIn('{{$randomPassword}}'));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User1 create successful\", function(){\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"id-user1\", pm.response.json());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"{{name-user1}}\",\r\n  \"lastName\": \"{{lastName-user1}}\",\r\n  \"firstName\": \"{{firstName-user1}}\",\r\n  \"email\": \"{{email-user1}}\",\r\n  \"phone\": \"{{phone-user1}}\",\r\n  \"password\": \"{{password-user1}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app-url}}/api/v1/users",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user1 profile w/o auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized profile access of user1\", function() {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app-url}}/api/v1/users/:userId",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":userId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{id-user1}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update user1 profile w/o auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"newEmail-user1\", pm.variables.replaceIn('{{$randomEmail}}'));\r",
+							"pm.variables.set(\"newPhone-user1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized profile access of user1\", function() {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{newEmail-user1}}\",\r\n  \"phone\": \"{{newPhone-user1}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app-url}}/api/v1/users/:userId",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":userId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{id-user1}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.json() != null ) {\r",
+							"    pm.collectionVariables.set(\"user1-access-token\", pm.response.json().token);\r",
+							"    pm.collectionVariables.set(\"user1-refresh-token\", pm.response.json().refreshToken);\r",
+							"\r",
+							"}\r",
+							"pm.test(\"User1 authorized\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userName",
+							"value": "{{name-user1}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password-user1}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{app-url}}/auth/login",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user1 profile with auth",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user1-access-token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app-url}}/api/v1/users/:userId",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":userId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{id-user1}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update user1 profile with auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"newEmail-user1\", pm.variables.replaceIn('{{$randomEmail}}'));\r",
+							"pm.variables.set(\"newPhone-user1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"User1 email has changed\", function() {\r",
+							"    pm.expect(response).to.have.property(\"email\", pm.variables.get(\"newEmail-user1\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User1 email has changed\", function() {\r",
+							"    pm.expect(response).to.have.property(\"phone\", pm.variables.get(\"newPhone-user1\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user1-access-token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{newEmail-user1}}\",\r\n  \"phone\": \"{{newPhone-user1}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app-url}}/api/v1/users/:userId",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":userId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{id-user1}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout user1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User1 logout successful\", function(){\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "otus-app",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "{{user1-refresh-token}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{otus-app-secret}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{keycloak-url}}/realms/{{otus-realm}}/protocol/openid-connect/logout",
+					"host": [
+						"{{keycloak-url}}"
+					],
+					"path": [
+						"realms",
+						"{{otus-realm}}",
+						"protocol",
+						"openid-connect",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "attempt get user1 new auth token after logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User1 can't get auth token, session logout\", function(){\r",
+							"    pm.response.to.have.status(400);\r",
+							"    pm.expect(pm.response.json()).to.have.property(\"error_description\", \"Session not active\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "otus-app",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{otus-app-secret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "{{user1-refresh-token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{keycloak-url}}/realms/{{otus-realm}}/protocol/openid-connect/token",
+					"host": [
+						"{{keycloak-url}}"
+					],
+					"path": [
+						"realms",
+						"{{otus-realm}}",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "registration user2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"name-user2\", pm.variables.replaceIn('{{$randomUserName}}'));\r",
+							"pm.collectionVariables.set(\"lastName-user2\", pm.variables.replaceIn('{{$randomLastName}}'));\r",
+							"pm.collectionVariables.set(\"firstName-user2\", pm.variables.replaceIn('{{$randomFirstName}}'));\r",
+							"pm.collectionVariables.set(\"email-user2\", pm.variables.replaceIn('{{$randomEmail}}'));\r",
+							"pm.collectionVariables.set(\"phone-user2\", pm.variables.replaceIn('{{$randomPhoneNumber}}'));\r",
+							"pm.collectionVariables.set(\"password-user2\", pm.variables.replaceIn('{{$randomPassword}}'));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User2 create successful\", function(){\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"id-user2\", pm.response.json());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"{{name-user2}}\",\r\n  \"lastName\": \"{{lastName-user2}}\",\r\n  \"firstName\": \"{{firstName-user2}}\",\r\n  \"email\": \"{{email-user2}}\",\r\n  \"phone\": \"{{phone-user2}}\",\r\n  \"password\": \"{{password-user2}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app-url}}/api/v1/users",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"user2-access-token\", pm.response.json().token);\r",
+							"pm.collectionVariables.set(\"user2-refresh-token\", pm.response.json().refreshToken);\r",
+							"\r",
+							"pm.test(\"User2 authorized\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userName",
+							"value": "{{name-user2}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password-user2}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{app-url}}/auth/login",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user2 profile with auth user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Access denied for user2 to profile of user1\", function() {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user1-access-token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app-url}}/api/v1/users/:userId",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":userId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{id-user2}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update user1 profile by user2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"newEmail-user1\", pm.variables.replaceIn('{{$randomEmail}}'));\r",
+							"pm.variables.set(\"newPhone-user1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Access denied for user2 to update profile of user1\", function() {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user2-access-token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{newEmail-user1}}\",\r\n  \"phone\": \"{{newPhone-user1}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app-url}}/api/v1/users/:userId",
+					"host": [
+						"{{app-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						":userId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{id-user1}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "name-user1",
+			"value": ""
+		},
+		{
+			"key": "lastName-user1",
+			"value": ""
+		},
+		{
+			"key": "firstName-user1",
+			"value": ""
+		},
+		{
+			"key": "email-user1",
+			"value": ""
+		},
+		{
+			"key": "phone-user1",
+			"value": ""
+		},
+		{
+			"key": "password-user1",
+			"value": ""
+		},
+		{
+			"key": "id-user1",
+			"value": ""
+		},
+		{
+			"key": "user1-access-token",
+			"value": ""
+		},
+		{
+			"key": "user1-refresh-token",
+			"value": ""
+		},
+		{
+			"key": "name-user2",
+			"value": ""
+		},
+		{
+			"key": "lastName-user2",
+			"value": ""
+		},
+		{
+			"key": "firstName-user2",
+			"value": ""
+		},
+		{
+			"key": "email-user2",
+			"value": ""
+		},
+		{
+			"key": "phone-user2",
+			"value": ""
+		},
+		{
+			"key": "password-user2",
+			"value": ""
+		},
+		{
+			"key": "id-user2",
+			"value": ""
+		},
+		{
+			"key": "user2-access-token",
+			"value": ""
+		},
+		{
+			"key": "user2-refresh-token",
+			"value": ""
+		},
+		{
+			"key": "app-url",
+			"value": "http://arch.homework"
+		},
+		{
+			"key": "keycloak-url",
+			"value": "http://keycloak.service"
+		},
+		{
+			"key": "otus-realm",
+			"value": "otus"
+		},
+		{
+			"key": "otus-app-secret",
+			"value": "zdmhjlftnn5h4tgPUmstxc1UGWFY4Iet"
+		}
+	]
+}

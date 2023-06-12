@@ -1,9 +1,12 @@
 package ru.otus.demo.model.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.otus.demo.model.constraint.UserCreateConstraint;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 /**
  * DTO пользователя.
@@ -12,6 +15,7 @@ import ru.otus.demo.model.constraint.UserCreateConstraint;
  */
 @NoArgsConstructor
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
     /**
      * Имя учетной записи.
@@ -32,10 +36,16 @@ public class UserDto {
      * Email.
      */
     @NotBlank(message = "Не заполнено поле email", groups = UserCreateConstraint.class)
+    @Email
     private String email;
     /**
      * Телефон.
      */
     @NotBlank(message = "Не заполнено поле phone", groups = UserCreateConstraint.class)
     private String phone;
+    /**
+     * Пароль.
+     */
+    @NotBlank(message = "Не заполнено поле password", groups = UserCreateConstraint.class)
+    private String password;
 }

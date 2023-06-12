@@ -1,90 +1,91 @@
-# Home Work 4 - Инфраструктурные паттерны
-Базовые сущности Кubernetes: Service, Ingress, Configmap, Secrets
-<br>Шаблонизация манифестов
+# Home Work 5 - Backend for frontends. Apigateway
 
-### Цель: создать простейший RESTful CRUD.
+### Цель: добавить в приложение аутентификацию и регистрацию пользователей.
 
 ### Описание/Пошаговая инструкция выполнения домашнего задания
 
-Сделать простейший RESTful CRUD по созданию, удалению, просмотру и обновлению пользователей.
-<br>Пример API - [https://app.swaggerhub.com/apis/otus55/users/1.0.0](https://app.swaggerhub.com/apis/otus55/users/1.0.0)
-<br>Добавить базу данных для приложения.
-<br>Конфигурация приложения должна хранится в Configmaps.
-<br>Доступы к БД должны храниться в Secrets.
-<br>Первоначальные миграции должны быть оформлены в качестве Job-ы, если это требуется.
-<br>Ingress-ы должны также вести на url arch.homework/ (как и в прошлом задании)
-<br>На выходе должны быть предоставлена:
-1. ссылка на директорию в github, где находится директория с манифестами кубернетеса;
-2. инструкция по запуску приложения;
-<ul>
-<li>команда установки БД из helm, вместе с файлом values.yaml;</li>
-<li>команда применения первоначальных миграций</li>
-<li>команда kubectl apply -f, которая запускает в правильном порядке манифесты кубернетеса;</li>
-</ul>
-3. Postman коллекция, в которой будут представлены примеры запросов к сервису на создание, получение, 
-изменение и удаление пользователя.
+Добавить в приложение аутентификацию и регистрацию пользователей.
+Реализовать сценарий "Изменение и просмотр данных в профиле клиента".
+Пользователь регистрируется. Заходит под собой и по определенному урлу получает данные о своем профиле. Может поменять данные в профиле. Данные профиля для чтения и редактирования не должны быть доступны другим клиентам (аутентифицированным или нет).
+На выходе должны быть:
+0) описание архитектурного решения и схема взаимодействия сервисов (в виде картинки)
+1) команда установки приложения (из helm-а или из манифестов). Обязательно указать в каком namespace нужно устанавливать.
+1*) команда установки api-gateway, если он отличен от nginx-ingress.
+2) тесты постмана, которые прогоняют сценарий:
+- регистрация пользователя 1
+- проверка, что изменение и получение профиля пользователя недоступно без логина
+- вход пользователя 1
+- изменение профиля пользователя 1
+- проверка, что профиль поменялся
+- выход* (если есть)
+- регистрация пользователя 2
+- вход пользователя 2
+- проверка, что пользователь2 не имеет доступа на чтение и редактирование профиля пользователя1.
 
-Важно: в postman коллекции использовать базовый url - arch.homework.
+В тестах обязательно:
+- наличие {{baseUrl}} для урла
+- использование домена arch.homework в качестве initial значения {{baseUrl}}
+- использование сгенерированных случайно данных в сценарии
+- отображение данных запроса и данных ответа при запуске из командной строки с помощью newman.
 
-Задание со звездочкой:
-+5 балла за шаблонизацию приложения в helm чартах.
+### Описание архитектуры
 
-### Инструкция запуска манифестов
+В качестве сервиса авторизации и аутентификации, а также для хранения зарегистрированных пользователей
+используется identity-провайдер Keycloak.
 
-1. Запуск кластера minikube в Docker на Windows
+![](doc/arch.png)
+
+### Схемы взаимодействия сервисов
+
+#### 1. Регистрация нового пользователя
+![](doc/01-registration.png)
+#### 2. Вход зарегистрированного пользователя
+![](doc/02-login.png)
+#### 3. Запрос зарегистрированным пользователем данных профиля
+![](doc/03-profile.png)
+
+### Инструкция запуска
+
+#### 1. Запуск кластера minikube в Docker на Windows
 ```
 minikube start driver=docker
 ```
-2. Добавление ingress controller в minikube (включение minikube addon "ingress")
+#### 2. Добавление ingress controller в minikube (включение minikube addon "ingress")
 ```
 minikube addons enable ingress
 ```
-3. Создание ресурсов: namespace, configmap, secret, pv и pvc
-```
-kubectl apply -f k8s/manifest/namespace -f k8s/manifest/resource --recursive
-```
-4. Установка БД
-```
-# добавляем репозиторий bitnami с чартами, если еще не добавлен
-helm repo add bitnami https://charts.bitnami.com/bitnami
+#### 3. Установка Keycloak
 
-# установка PostgreSQL с помощью Helm Chart и параметров в values.yaml
-helm install postgresql -n dev -f k8s/manifest/db/values.yaml bitnami/postgresql
+##### 3.1. Создание Namespace "dev"
 ```
-5. Развертывание микросервиса. Создание ресурсов: service, deployment, ingress
+kubectl apply -f k8s/manifest/namespace
 ```
-kubectl apply -f k8s/manifest
+##### 3.2. Создание ConfigMap с импортируемым realm
 ```
-6. Открытие туннеля minikube
+kubectl create configmap -n dev keycloak-realm --from-literal=realm.name=otus --from-file=k8s/helm/keycloak/realm/realm.json
+```
+##### 3.3. Создание Secret для Keycloak
+```
+kubectl apply -f k8s/manifest/resource/secret
+```
+##### 3.4. Обновление ConfigMap для Nginx Controller
+```
+kubectl apply -f k8s/manifest/resource/configmap/keycloak-nginx-configmap.yaml
+```
+##### 3.5. Установка Keycloak в кластер
+```
+helm install keycloak -n dev --create-namespace oci://registry-1.docker.io/bitnamicharts/keycloak --values k8s/helm/keycloak/values-dev.yaml
+```
+#### 4. Установка приложения с д/з №5
+```
+helm install home-work-5 -n dev -f k8s/helm/app/values-dev.yaml k8s/helm/app
+```
+#### 5. Открытие туннеля minikube
 ```
 minikube tunnel
 ```
-7. Проверка
+#### 6. Проверка через Postman CLI
+[Установка Postman CLI](https://learning.postman.com/docs/postman-cli/postman-cli-installation/).
 ```
-curl http://arch.homework/health
+postman collection run postman/home-work-5.postman_collection.json --verbose
 ```
-8. Swagger
-
-[http://arch.homework/swagger-ui/index.html](http://arch.homework/swagger-ui/index.html)
-
-### Инструкция запуска helm (задание с *)
-
-1. Проверка на ошибки
-```
-helm lint k8s/helm -f k8s/helm/values-dev.yaml
-```
-2. Загрузка зависимостей
-```
-helm dependency build k8s/helm
-```
-3. Установка HELM с д/з №4, включая БД PostgreSQL
-```
-helm install home-work-4 --namespace=dev --create-namespace -f k8s/helm/values-dev.yaml k8s/helm/
-```
-4. Проверка
-```
-curl http://arch.homework/health
-```
-5. Swagger
-
-[http://arch.homework/swagger-ui/index.html](http://arch.homework/swagger-ui/index.html)

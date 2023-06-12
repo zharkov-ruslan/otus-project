@@ -1,0 +1,9 @@
+ns: dev
+
+configmap:
+  data:
+    APP_PORT: 8000
+    KEYCLOAK_BASE_URL: http://keycloak
+
+pod:
+  initialDelaySeconds: 90

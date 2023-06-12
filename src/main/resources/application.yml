@@ -1,28 +1,30 @@
 server:
-    port: ${APP_PORT}
-spring:
-    datasource:
-        driverClassName: org.postgresql.Driver
-        url: ${DB_URL}
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
-    jpa:
-        database-platform: org.hibernate.dialect.PostgreSQL9Dialect
-        open-in-view: false
-        show-sql: true
-        generate-ddl: false
-        hibernate:
-            ddl-auto: validate
-    liquibase:
-        drop-first: false
-        change-log: classpath:db/changelog/db.changelog-master.xml
-        enabled: true
-        default-schema: public
+  port: ${APP_PORT}
+
+keycloak-admin:
+  url: ${KEYCLOAK_BASE_URL}
+  realm: ${REALM_NAME}
+  client-id: admin-cli
+  client-secret: ${ADMIN_CLI_SECRET}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_BASE_URL}
+  realm: ${REALM_NAME}
+  resource: otus-app
+  public-client: true
+  credentials:
+    secret: ${OTUS_APP_SECRET}
+  enable-basic-auth: true
+  bearer-only: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
 
 springdoc:
-    api-docs:
-        path: /openapi
-    show-actuator: true
-    swagger-ui:
-        path: swagger-ui.html
-        disable-swagger-default-url: true
+  api-docs:
+    path: /openapi
+  show-actuator: true
+  swagger-ui:
+    path: swagger-ui.html
+    disable-swagger-default-url: true
