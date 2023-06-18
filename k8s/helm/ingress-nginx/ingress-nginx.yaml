@@ -1,0 +1,10 @@
+controller:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+    additionalLabels:
+      release: "prometheus"

@@ -1,48 +1,34 @@
-# Home Work 5 - Backend for frontends. Apigateway
+# Home Work 6 - Prometheus. Grafana
 
-### Цель: добавить в приложение аутентификацию и регистрацию пользователей.
+### Цель: инструментировать сервис.
 
 ### Описание/Пошаговая инструкция выполнения домашнего задания
 
-Добавить в приложение аутентификацию и регистрацию пользователей.
-Реализовать сценарий "Изменение и просмотр данных в профиле клиента".
-Пользователь регистрируется. Заходит под собой и по определенному урлу получает данные о своем профиле. Может поменять данные в профиле. Данные профиля для чтения и редактирования не должны быть доступны другим клиентам (аутентифицированным или нет).
-На выходе должны быть:
-0) описание архитектурного решения и схема взаимодействия сервисов (в виде картинки)
-1) команда установки приложения (из helm-а или из манифестов). Обязательно указать в каком namespace нужно устанавливать.
-1*) команда установки api-gateway, если он отличен от nginx-ingress.
-2) тесты постмана, которые прогоняют сценарий:
-- регистрация пользователя 1
-- проверка, что изменение и получение профиля пользователя недоступно без логина
-- вход пользователя 1
-- изменение профиля пользователя 1
-- проверка, что профиль поменялся
-- выход* (если есть)
-- регистрация пользователя 2
-- вход пользователя 2
-- проверка, что пользователь2 не имеет доступа на чтение и редактирование профиля пользователя1.
+Инструментировать сервис из прошлого задания метриками в формате Prometheus 
+с помощью библиотеки для вашего фреймворка и ЯП.
+Сделать дашборд в Графане, в котором были бы метрики с разбивкой по API методам:
 
-В тестах обязательно:
-- наличие {{baseUrl}} для урла
-- использование домена arch.homework в качестве initial значения {{baseUrl}}
-- использование сгенерированных случайно данных в сценарии
-- отображение данных запроса и данных ответа при запуске из командной строки с помощью newman.
+1. Latency (response time) с квантилями по 0.5, 0.95, 0.99, max
+2. RPS
+3. Error Rate - количество 500ых ответов
 
-### Описание архитектуры
+Добавить в дашборд графики с метрикам в целом по сервису, взятые с nginx-ingress-controller:
+4. Latency (response time) с квантилями по 0.5, 0.95, 0.99, max
+5. RPS
+6. Error Rate - количество 500ых ответов
 
-В качестве сервиса авторизации и аутентификации, а также для хранения зарегистрированных пользователей
-используется identity-провайдер Keycloak.
+Настроить алертинг в графане на Error Rate и Latency.
 
-![](doc/arch.png)
+На выходе должно быть:
+0. скриншоты дашборды с графиками в момент стресс-тестирования сервиса. Например, после 5-10 минут нагрузки.
+1. json-дашборды.
 
-### Схемы взаимодействия сервисов
-
-#### 1. Регистрация нового пользователя
-![](doc/01-registration.png)
-#### 2. Вход зарегистрированного пользователя
-![](doc/02-login.png)
-#### 3. Запрос зарегистрированным пользователем данных профиля
-![](doc/03-profile.png)
+Задание со звездочкой (+5 баллов)
+Используя существующие системные метрики из кубернетеса, добавить на дашборд графики с метриками:
+1. Потребление подами приложения памяти
+2. Потребление подами приолжения CPU
+Инструментировать базу данных с помощью экспортера для prometheus для этой БД.
+Добавить в общий дашборд графики с метриками работы БД.
 
 ### Инструкция запуска
 
@@ -50,35 +36,67 @@
 ```
 minikube start driver=docker
 ```
-#### 2. Добавление ingress controller в minikube (включение minikube addon "ingress")
+#### 2. Установка Prometheus и Ingress Nginx
+
+Добавление репозитория чартов prometheus:
 ```
-minikube addons enable ingress
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 ```
+Установка чарта kube-prometheus-stack:
+```
+helm install prometheus prometheus-community/kube-prometheus-stack `
+    -n prometheus --create-namespace `
+    -f k8s/helm/prometheus/prometheus.yaml
+```
+Добавление репозитория чартов ingress-nginx:
+```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+```
+Установка чарта ingress-nginx:
+```
+helm upgrade --install ingress-nginx ingress-nginx `
+    --repo https://kubernetes.github.io/ingress-nginx `
+    -n ingress-nginx `
+    -f k8s/helm/ingress-nginx/ingress-nginx.yaml
+```
+или
+```
+helm upgrade --install ingress-nginx ingress-nginx `
+    --repo https://kubernetes.github.io/ingress-nginx `
+    --set-string controller.podAnnotations."prometheus\.io/scrape"="true" `
+    --set-string controller.podAnnotations."prometheus\.io/port"="10254" `
+    --set controller.metrics.enabled=true `
+    --set controller.metrics.serviceMonitor.enabled=true `
+    --set controller.metrics.serviceMonitor.additionalLabels.release="prometheus" `
+    -n ingress-nginx --create-namespace
+```
+
 #### 3. Установка Keycloak
 
-##### 3.1. Создание Namespace "dev"
+Создание Namespace "dev":
 ```
 kubectl apply -f k8s/manifest/namespace
 ```
-##### 3.2. Создание ConfigMap с импортируемым realm
+Создание ConfigMap с импортируемым realm:
 ```
 kubectl create configmap -n dev keycloak-realm --from-literal=realm.name=otus --from-file=k8s/helm/keycloak/realm/realm.json
 ```
-##### 3.3. Создание Secret для Keycloak
+Создание Secret для Keycloak:
 ```
 kubectl apply -f k8s/manifest/resource/secret
 ```
-##### 3.4. Обновление ConfigMap для Nginx Controller
+Обновление ConfigMap для Nginx Controller:
 ```
 kubectl apply -f k8s/manifest/resource/configmap/keycloak-nginx-configmap.yaml
 ```
-##### 3.5. Установка Keycloak в кластер
+Установка Keycloak в кластер:
 ```
-helm install keycloak -n dev --create-namespace oci://registry-1.docker.io/bitnamicharts/keycloak --values k8s/helm/keycloak/values-dev.yaml
+helm install keycloak -n dev oci://registry-1.docker.io/bitnamicharts/keycloak `
+    --values k8s/helm/keycloak/values-dev.yaml
 ```
-#### 4. Установка приложения с д/з №5
+#### 4. Установка приложения с д/з №6
 ```
-helm install home-work-5 -n dev -f k8s/helm/app/values-dev.yaml k8s/helm/app
+helm install home-work-6 -n dev -f k8s/helm/app/values-dev.yaml k8s/helm/app
 ```
 #### 5. Открытие туннеля minikube
 ```
@@ -89,3 +107,15 @@ minikube tunnel
 ```
 postman collection run postman/home-work-5.postman_collection.json --verbose
 ```
+### Мониторинг
+
+JSON панели мониторинга расположен в [grafana/HomeWork6.json](grafana/HomeWork6.json).
+
+#### 1. Квантили по URI
+![](doc/QuantilesByUri.png)
+#### 2. Частота запросов и 500-х ошибок по URI
+![](doc/RpsAndErrorsByUri.png)
+#### 3. Квантили с Ingress Nginx
+![](doc/QuantilesFromIngressNginx.png)
+#### 4. Частота запросов и 500-х ошибок с Ingress Nginx
+![](doc/RpsAndErrorsFromIngressNginx.png)

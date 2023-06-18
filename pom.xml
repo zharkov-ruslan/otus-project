@@ -10,7 +10,7 @@
     </parent>
     <groupId>ru.otus.microservice</groupId>
     <artifactId>otus-project</artifactId>
-    <version>0.5.0</version>
+    <version>0.6.0</version>
     <name>Home work</name>
     <description>Домашняя работа</description>
 
@@ -72,6 +72,10 @@
 <!--            <groupId>org.springframework.security</groupId>-->
 <!--            <artifactId>spring-security-oauth2-jose</artifactId>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -88,6 +92,19 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-spring-boot-starter</artifactId>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>io.micrometer</groupId>-->
+<!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
+<!--            <version>1.11.0</version>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.mapstruct</groupId>

@@ -9,5 +9,6 @@ spec:
     app: "{{ .Values.applicationName }}-app"
   ports:
     - protocol: TCP
+      name: metrics
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.pod.containerPort }}

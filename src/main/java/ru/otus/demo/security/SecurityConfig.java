@@ -32,14 +32,15 @@ import static ru.otus.demo.api.rest.controller.UserController.USER_ENDPOINT_PATH
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
     public static final String HEALTH_PATH = "/health";
+    public static final String ACTUATOR_PATH = "/actuator/**";
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(@NonNull final HttpSecurity http) throws Exception {
         super.configure(http);
         http
                 .csrf().disable()
                 .authorizeRequests(authz -> authz
-                        .antMatchers(GET, HEALTH_PATH).permitAll()
+                        .antMatchers(GET, HEALTH_PATH, ACTUATOR_PATH).permitAll()
                         .antMatchers(POST, USER_ENDPOINT_PATH, AUTH_LOGIN_ENDPOINT).permitAll()
                         .anyRequest()
                         .authenticated()
@@ -48,7 +49,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    public AuthenticationManager authenticationManager(@NonNull final HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class).build();
     }
 

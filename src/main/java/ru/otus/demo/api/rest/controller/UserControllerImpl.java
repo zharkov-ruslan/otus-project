@@ -18,6 +18,7 @@ import ru.otus.demo.model.constraint.UserCreateConstraint;
 import ru.otus.demo.model.dto.UserDto;
 import ru.otus.demo.service.UserService;
 
+import javax.ws.rs.InternalServerErrorException;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,8 +44,7 @@ public class UserControllerImpl implements UserController {
 
     private final UserService userService;
 
-    public UserControllerImpl(@Qualifier("userKeycloakServiceImpl") @NonNull
-                              final UserService userService) {
+    public UserControllerImpl(@Qualifier("userKeycloakServiceImpl") @NonNull final UserService userService) {
         this.userService = userService;
     }
 
@@ -58,17 +58,19 @@ public class UserControllerImpl implements UserController {
 
     @GetMapping(value = "/{userId}", produces = APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole(T(ru.otus.demo.meta.Role).APP_ADMIN.value) || (" +
-                "hasRole(T(ru.otus.demo.meta.Role).APP_USER.value) && #userId.toString().equals(principal.name))")
+            "hasRole(T(ru.otus.demo.meta.Role).APP_USER.value) && #userId.toString().equals(principal.name))")
     @Override
     public UserDto getUser(@PathVariable @NonNull final UUID userId) {
         log.info(GET_USER_REQUEST_MESSAGE, userId);
+        if (Math.random() > 0.7) {
+            throw new InternalServerErrorException("Random error");
+        }
         return userService.getUser(userId);
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
     @Override
-    public ResponseEntity<UUID> createUser(@RequestBody @NonNull @Validated(UserCreateConstraint.class)
-                                           final UserDto userDto) {
+    public ResponseEntity<UUID> createUser(@RequestBody @NonNull @Validated(UserCreateConstraint.class) final UserDto userDto) {
         log.info(CREATE_USER_REQUEST_MESSAGE, userDto);
         return ResponseEntity.status(CREATED).body(userService.createUser(userDto));
     }
@@ -80,6 +82,9 @@ public class UserControllerImpl implements UserController {
     public ResponseEntity<UserDto> updateUser(@PathVariable @NonNull final UUID userId,
                                               @RequestBody @NonNull final UserDto userDto) {
         log.info(UPDATE_USER_REQUEST_MESSAGE, userId, userDto);
+        if (Math.random() > 0.7) {
+            throw new InternalServerErrorException("Random error");
+        }
         return ok().body(userService.updateUser(userId, userDto));
     }
 

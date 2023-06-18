@@ -1,11 +1,11 @@
 applicationName: home-work
 applicationLabels: home-work
-replicaCount: 3
+replicaCount: 2
 
 image:
   repository: quadro5/home-work
   pullPolicy: IfNotPresent
-  tag: "0.5.0"
+  tag: "0.6.0"
 
 pod:
   containerPort: 8000
